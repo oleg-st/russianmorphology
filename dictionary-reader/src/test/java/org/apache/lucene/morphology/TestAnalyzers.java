@@ -1,12 +1,12 @@
 /**
  * Copyright 2009 Alexander Kuznetsov
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,11 +15,7 @@
  */
 package org.apache.lucene.morphology;
 
-import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.BaseTokenStreamTestCase;
-import org.apache.lucene.analysis.CharArraySet;
-import org.apache.lucene.analysis.LowerCaseFilter;
-import org.apache.lucene.analysis.TokenFilter;
+import org.apache.lucene.analysis.*;
 import org.apache.lucene.analysis.miscellaneous.SetKeywordMarkerFilter;
 import org.apache.lucene.analysis.standard.StandardTokenizer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
@@ -27,36 +23,37 @@ import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
 import org.apache.lucene.morphology.analyzer.MorphologyAnalyzer;
 import org.apache.lucene.morphology.analyzer.MorphologyFilter;
 import org.apache.lucene.morphology.english.EnglishAnalyzer;
-import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.morphology.english.EnglishLuceneMorphology;
 import org.apache.lucene.morphology.russian.RussianAnalyzer;
 import org.apache.lucene.morphology.russian.RussianLuceneMorphology;
 import org.junit.Test;
 
 import java.io.*;
-import java.util.*;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.hamcrest.Matchers.equalTo;
 
-
-public class AnalyzersTest extends BaseTokenStreamTestCase {
+public class TestAnalyzers extends BaseTokenStreamTestCase {
 
     @Test
     public void shouldGiveCorrectWordsForEnglish() throws IOException {
-        Analyzer morphlogyAnalyzer = new EnglishAnalyzer();
+        Analyzer morphologyAnalyzer = new EnglishAnalyzer();
         String answerPath = "/english/english-analyzer-answer.txt";
         String testPath = "/english/english-analyzer-data.txt";
 
-        testAnalayzer(morphlogyAnalyzer, answerPath, testPath);
+        testAnalyzer(morphologyAnalyzer, answerPath, testPath);
     }
 
     @Test
     public void shouldGiveCorrectWordsForRussian() throws IOException {
-        Analyzer morphlogyAnalyzer = new RussianAnalyzer();
+        Analyzer morphologyAnalyzer = new RussianAnalyzer();
         String answerPath = "/russian/russian-analyzer-answer.txt";
         String testPath = "/russian/russian-analyzer-data.txt";
 
-        testAnalayzer(morphlogyAnalyzer, answerPath, testPath);
+        testAnalyzer(morphologyAnalyzer, answerPath, testPath);
     }
 
     @Test
@@ -65,53 +62,55 @@ public class AnalyzersTest extends BaseTokenStreamTestCase {
         LuceneMorphology englishLuceneMorphology = new EnglishLuceneMorphology();
 
         MorphologyAnalyzer russianAnalyzer = new MorphologyAnalyzer(russianLuceneMorphology);
-        InputStreamReader reader = new InputStreamReader(new ByteArrayInputStream("тест пм тест".getBytes()), "UTF-8");
+        InputStreamReader reader = new InputStreamReader(new ByteArrayInputStream("тест пм тест".getBytes()), StandardCharsets.UTF_8);
         TokenStream stream = russianAnalyzer.tokenStream(null, reader);
         MorphologyFilter englishFilter = new MorphologyFilter(stream, englishLuceneMorphology);
 
         englishFilter.reset();
         while (englishFilter.incrementToken()) {
-            System.out.println(englishFilter.toString());
+            System.out.println(englishFilter);
         }
     }
 
     @Test
     public void shouldProvideCorrectIndentForWordWithMelitaForm() throws IOException {
-        Analyzer morphlogyAnalyzer = new RussianAnalyzer();
-        InputStreamReader reader = new InputStreamReader(new ByteArrayInputStream("принеси мне вина на новый год".getBytes()), "UTF-8");
+        Analyzer morphologyAnalyzer = new RussianAnalyzer();
+        InputStreamReader reader = new InputStreamReader(new ByteArrayInputStream("принеси мне вина на новый год".getBytes()), StandardCharsets.UTF_8);
 
-        TokenStream tokenStream = morphlogyAnalyzer.tokenStream(null, reader);
+        TokenStream tokenStream = morphologyAnalyzer.tokenStream(null, reader);
         tokenStream.reset();
-        Set<String> foromsOfWine = new HashSet<String>();
-        foromsOfWine.add("вина");
-        foromsOfWine.add("винo");
+        Set<String> formsOfWine = new HashSet<>();
+        formsOfWine.add("вина");
+        formsOfWine.add("винo");
         boolean wordSeen = false;
         while (tokenStream.incrementToken()) {
             CharTermAttribute charTerm = tokenStream.getAttribute(CharTermAttribute.class);
             PositionIncrementAttribute position = tokenStream.getAttribute(PositionIncrementAttribute.class);
-            if(foromsOfWine.contains(charTerm.toString()) && wordSeen){
-                assertThat(position.getPositionIncrement(),equalTo(0));
+            if (formsOfWine.contains(charTerm.toString()) && wordSeen) {
+                org.hamcrest.MatcherAssert.assertThat(position.getPositionIncrement(), equalTo(0));
             }
-            if(foromsOfWine.contains(charTerm.toString())){
+            if (formsOfWine.contains(charTerm.toString())) {
                 wordSeen = true;
             }
         }
     }
 
-    private void testAnalayzer(Analyzer morphlogyAnalyzer, String answerPath, String testPath) throws IOException {
+    private void testAnalyzer(Analyzer morphologyAnalyzer, String answerPath, String testPath) throws IOException {
         InputStream stream = this.getClass().getResourceAsStream(answerPath);
-        BufferedReader breader = new BufferedReader(new InputStreamReader(stream, "UTF-8"));
-        String[] strings = breader.readLine().replaceAll(" +", " ").trim().split(" ");
-        HashSet<String> answer = new HashSet<String>(Arrays.asList(strings));
+        assertNotNull(stream);
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8));
+        String[] strings = bufferedReader.readLine().replaceAll(" +", " ").trim().split(" ");
+        HashSet<String> answer = new HashSet<>(Arrays.asList(strings));
         stream.close();
 
         stream = this.getClass().getResourceAsStream(testPath);
+        assertNotNull(stream);
 
-        InputStreamReader reader = new InputStreamReader(stream, "UTF-8");
+        InputStreamReader reader = new InputStreamReader(stream, StandardCharsets.UTF_8);
 
-        TokenStream tokenStream = morphlogyAnalyzer.tokenStream(null, reader);
+        TokenStream tokenStream = morphologyAnalyzer.tokenStream(null, reader);
         tokenStream.reset();
-        HashSet<String> result = new HashSet<String>();
+        HashSet<String> result = new HashSet<>();
         while (tokenStream.incrementToken()) {
             CharTermAttribute attribute1 = tokenStream.getAttribute(CharTermAttribute.class);
             result.add(attribute1.toString());
@@ -119,7 +118,7 @@ public class AnalyzersTest extends BaseTokenStreamTestCase {
 
         stream.close();
 
-        assertThat(result, equalTo(answer));
+        org.hamcrest.MatcherAssert.assertThat(result, equalTo(answer));
     }
 
     @Test
@@ -137,14 +136,14 @@ public class AnalyzersTest extends BaseTokenStreamTestCase {
 
     @Test
     public void testKeywordHandling() throws IOException {
-        Analyzer analyzer = new EnglishKeywordTestAnalyzer();
+        Analyzer analyzer = new EnglishKeywordAnalyzerTest();
         assertTokenStreamContents(
                 analyzer.tokenStream("test", "Tests shouldn't be stemmed, but tests should!"),
                 new String[]{"tests", "shouldn't", "be", "stem", "but", "test", "shall"}
         );
     }
 
-    private static class EnglishKeywordTestAnalyzer extends Analyzer {
+    private static class EnglishKeywordAnalyzerTest extends Analyzer {
         @Override
         protected TokenStreamComponents createComponents(String s) {
             StandardTokenizer src = new StandardTokenizer();

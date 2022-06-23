@@ -18,50 +18,49 @@ package org.apache.lucene.morphology.russian;
 
 import org.apache.lucene.morphology.LetterDecoderEncoder;
 import org.apache.lucene.morphology.SuffixToLongException;
-import org.apache.lucene.morphology.WrongCharaterException;
+import org.apache.lucene.morphology.WrongCharacterException;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 
 /**
- * This helper class allow encode suffix of russian word
+ * This helper class allow to encode suffix of russian word
  * to long value and decode from it.
  * Assumed that suffix contains only small russian letters and dash.
  * Also assumed that letter � and � coinsed.
  */
 public class RussianLetterDecoderEncoder implements LetterDecoderEncoder {
     public static final int RUSSIAN_SMALL_LETTER_OFFSET = 1071;
-    public static final int WORD_PART_LENGHT = 6;
+    public static final int WORD_PART_LENGTH = 6;
     public static final int EE_CHAR = 34;
     public static final int E_CHAR = 6;
     public static final int DASH_CHAR = 45;
     public static final int DASH_CODE = 33;
 
     public Integer encode(String string) {
-        if (string.length() > WORD_PART_LENGHT)
-            throw new SuffixToLongException("Suffix length should not be greater then " + WORD_PART_LENGHT + " " + string);
+        if (string.length() > WORD_PART_LENGTH)
+            throw new SuffixToLongException("Suffix length should not be greater then " + WORD_PART_LENGTH + " " + string);
         int result = 0;
         for (int i = 0; i < string.length(); i++) {
-            int c = 0 + string.charAt(i) - RUSSIAN_SMALL_LETTER_OFFSET;
+            int c = string.charAt(i) - RUSSIAN_SMALL_LETTER_OFFSET;
             if (c == 45 - RUSSIAN_SMALL_LETTER_OFFSET) {
                 c = DASH_CODE;
             }
             if (c == EE_CHAR) c = E_CHAR;
             if (c < 0 || c > 33)
-                throw new WrongCharaterException("Symbol " + string.charAt(i) + " is not small cirillic letter");
+                throw new WrongCharacterException("Symbol " + string.charAt(i) + " is not small cyrillic letter");
             result = result * 34 + c;
         }
-        for (int i = string.length(); i < WORD_PART_LENGHT; i++) {
+        for (int i = string.length(); i < WORD_PART_LENGTH; i++) {
             result *= 34;
         }
         return result;
     }
 
     public int[] encodeToArray(String s) {
-        LinkedList<Integer> integers = new LinkedList<Integer>();
-        while (s.length() > WORD_PART_LENGHT) {
-            integers.add(encode(s.substring(0, WORD_PART_LENGHT)));
-            s = s.substring(WORD_PART_LENGHT);
+        LinkedList<Integer> integers = new LinkedList<>();
+        while (s.length() > WORD_PART_LENGTH) {
+            integers.add(encode(s.substring(0, WORD_PART_LENGTH)));
+            s = s.substring(WORD_PART_LENGTH);
         }
         integers.add(encode(s));
         int[] ints = new int[integers.size()];
@@ -74,16 +73,15 @@ public class RussianLetterDecoderEncoder implements LetterDecoderEncoder {
     }
 
     public String decodeArray(int[] array) {
-        String result = "";
+        StringBuilder result = new StringBuilder();
         for (int i : array) {
-            result += decode(i);
+            result.append(decode(i));
         }
-        return result;
+        return result.toString();
     }
 
-
     public String decode(Integer suffixN) {
-        String result = "";
+        StringBuilder result = new StringBuilder();
         while (suffixN > 33) {
             int c = suffixN % 34 + RUSSIAN_SMALL_LETTER_OFFSET;
             if (c == RUSSIAN_SMALL_LETTER_OFFSET) {
@@ -91,21 +89,20 @@ public class RussianLetterDecoderEncoder implements LetterDecoderEncoder {
                 continue;
             }
             if (c == DASH_CODE + RUSSIAN_SMALL_LETTER_OFFSET) c = DASH_CHAR;
-            result = (char) c + result;
+            result.insert(0, (char) c);
             suffixN /= 34;
         }
         long c = suffixN + RUSSIAN_SMALL_LETTER_OFFSET;
         if (c == DASH_CODE + RUSSIAN_SMALL_LETTER_OFFSET) c = DASH_CHAR;
-        result = (char) c + result;
-        return result;
+        result.insert(0, (char) c);
+        return result.toString();
     }
 
     public boolean checkCharacter(char c) {
-        int code = 0 + c;
+        int code = c;
         if (code == 45) return true;
         code -= RUSSIAN_SMALL_LETTER_OFFSET;
-        if (code > 0 && code < 33) return true;
-        return false;
+        return code > 0 && code < 33;
     }
 
     public boolean checkString(String word) {

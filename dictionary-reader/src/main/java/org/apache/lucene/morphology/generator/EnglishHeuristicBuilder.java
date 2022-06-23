@@ -26,10 +26,10 @@ import java.util.HashSet;
 public class EnglishHeuristicBuilder {
     public static void main(String[] args) throws IOException {
 
-        GrammarReader grammarInfo = new GrammarReader("dictonary/Dicts/Morph/egramtab.tab");
+        GrammarReader grammarInfo = new GrammarReader("dictionary/Dicts/Morph/egramtab.tab");
         EnglishLetterDecoderEncoder decoderEncoder = new EnglishLetterDecoderEncoder();
 
-        DictionaryReader dictionaryReader = new DictionaryReader("dictonary/Dicts/SrcMorph/EngSrc/morphs.mrd", new HashSet<String>());
+        DictionaryReader dictionaryReader = new DictionaryReader("dictionary/Dicts/SrcMorph/EngSrc/morphs.mrd", new HashSet<>());
 
         StatisticsCollector statisticsCollector = new StatisticsCollector(grammarInfo, decoderEncoder);
         WordCleaner wordCleaner = new WordCleaner(decoderEncoder, statisticsCollector);
@@ -37,6 +37,5 @@ public class EnglishHeuristicBuilder {
         RemoveFlexiaWithPrefixes removeFlexiaWithPrefixes = new RemoveFlexiaWithPrefixes(wordStringCleaner);
         dictionaryReader.process(removeFlexiaWithPrefixes);
         statisticsCollector.saveHeuristic("english/src/main/resources/org/apache/lucene/morphology/english/morph.info");
-
     }
 }

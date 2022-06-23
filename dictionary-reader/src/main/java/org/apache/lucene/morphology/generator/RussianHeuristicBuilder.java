@@ -22,13 +22,12 @@ import org.apache.lucene.morphology.russian.RussianLetterDecoderEncoder;
 import java.io.IOException;
 import java.util.HashSet;
 
-
 public class RussianHeuristicBuilder {
     public static void main(String[] args) throws IOException {
-        GrammarReader grammarInfo = new GrammarReader("dictonary/Dicts/Morph/rgramtab.tab");
+        GrammarReader grammarInfo = new GrammarReader("dictionary/Dicts/Morph/rgramtab.tab");
         RussianLetterDecoderEncoder decoderEncoder = new RussianLetterDecoderEncoder();
 
-        DictionaryReader dictionaryReader = new DictionaryReader("dictonary/Dicts/SrcMorph/RusSrc/morphs.mrd", new HashSet<String>());
+        DictionaryReader dictionaryReader = new DictionaryReader("dictionary/Dicts/SrcMorph/RusSrc/morphs.mrd", new HashSet<>());
 
         StatisticsCollector statisticsCollector = new StatisticsCollector(grammarInfo, decoderEncoder);
         WordCleaner wordCleaner = new WordCleaner(decoderEncoder, statisticsCollector);
@@ -37,6 +36,5 @@ public class RussianHeuristicBuilder {
         RussianAdvSplitterFilter russianAdvSplitterFilter = new RussianAdvSplitterFilter(removeFlexiaWithPrefixes);
         dictionaryReader.process(russianAdvSplitterFilter);
         statisticsCollector.saveHeuristic("russian/src/main/resources/org/apache/lucene/morphology/russian/morph.info");
-
     }
 }

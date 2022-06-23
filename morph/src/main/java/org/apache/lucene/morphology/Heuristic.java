@@ -1,12 +1,12 @@
 /**
  * Copyright 2009 Alexander Kuznetsov
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,20 +16,21 @@
 package org.apache.lucene.morphology;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 
 public class Heuristic implements Serializable {
-    byte actualSuffixLength;
-    String actualNormalSuffix;
-    short formMorphInfo;
-    short normalFormMorphInfo;
+    final byte actualSuffixLength;
+    final String actualNormalSuffix;
+    final short formMorphInfo;
+    final short normalFormMorphInfo;
 
     public Heuristic(String s) {
         String[] strings = s.split("\\|");
-        actualSuffixLength = Byte.valueOf(strings[0]);
+        actualSuffixLength = Byte.parseByte(strings[0]);
         actualNormalSuffix = strings[1];
-        formMorphInfo = Short.valueOf(strings[2]);
-        normalFormMorphInfo = Short.valueOf(strings[3]);
+        formMorphInfo = Short.parseShort(strings[2]);
+        normalFormMorphInfo = Short.parseShort(strings[3]);
     }
 
     public Heuristic(byte actualSuffixLength, String actualNormalSuffix, short formMorphInfo, short normalFormMorphInfo) {
@@ -67,18 +68,15 @@ public class Heuristic implements Serializable {
 
         Heuristic heuristic = (Heuristic) o;
 
-        if (actualSuffixLength != heuristic.actualSuffixLength) return false;
-        if (formMorphInfo != heuristic.formMorphInfo) return false;
-        if (normalFormMorphInfo != heuristic.normalFormMorphInfo) return false;
-        if (actualNormalSuffix != null ? !actualNormalSuffix.equals(heuristic.actualNormalSuffix) : heuristic.actualNormalSuffix != null)
-            return false;
-
-        return true;
+        return actualSuffixLength == heuristic.actualSuffixLength &&
+                formMorphInfo == heuristic.formMorphInfo &&
+                normalFormMorphInfo == heuristic.normalFormMorphInfo &&
+                Objects.equals(actualNormalSuffix, heuristic.actualNormalSuffix);
     }
 
     @Override
     public int hashCode() {
-        int result = (int) actualSuffixLength;
+        int result = actualSuffixLength;
         result = 31 * result + (actualNormalSuffix != null ? actualNormalSuffix.hashCode() : 0);
         result = 31 * result + (int) formMorphInfo;
         result = 31 * result + (int) normalFormMorphInfo;

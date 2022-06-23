@@ -23,7 +23,7 @@ import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import java.io.IOException;
 
 public class EnglishStemmerFilter extends TokenFilter {
-    private EnglishStemmer englishStemmer;
+    private final EnglishStemmer englishStemmer;
     private final CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
 
     public EnglishStemmerFilter(TokenStream input, EnglishStemmer englishStemmer) {

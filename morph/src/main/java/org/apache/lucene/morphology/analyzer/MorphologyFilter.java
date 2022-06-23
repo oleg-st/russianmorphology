@@ -29,7 +29,7 @@ import java.util.List;
 
 
 public class MorphologyFilter extends TokenFilter {
-    private LuceneMorphology luceneMorph;
+    private final LuceneMorphology luceneMorph;
     private Iterator<String> iterator;
     private final CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
     private final KeywordAttribute keywordAttr = addAttribute(KeywordAttribute.class);

@@ -16,32 +16,28 @@
 
 package org.apache.lucene.morphology.dictionary;
 
-
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-
 /**
  * This class contain logic how read
- * dictonary and produce word with it all forms.
+ * dictionary and produce word with it all forms.
  */
 public class DictionaryReader {
-    private String fileName;
-    private String fileEncoding = "windows-1251";
-    private List<List<FlexiaModel>> wordsFlexias = new ArrayList<List<FlexiaModel>>();
-    private Set<String> ignoredForm = new HashSet<String>();
+    private final String fileName;
+    private static final String fileEncoding = "windows-1251";
+    private final List<List<FlexiaModel>> wordsFlexias = new ArrayList<>();
+    private final Set<String> ignoredForm;
 
     public DictionaryReader(String fileName, Set<String> ignoredForm) {
         this.fileName = fileName;
         this.ignoredForm = ignoredForm;
     }
-
 
     public void process(WordProcessor wordProcessor) throws IOException {
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(fileName), fileEncoding));
@@ -55,11 +51,11 @@ public class DictionaryReader {
 
     private void readWords(BufferedReader reader, WordProcessor wordProcessor) throws IOException {
         String s = reader.readLine();
-        int count = Integer.valueOf(s);
+        int count = Integer.parseInt(s);
         int actual = 0;
         for (int i = 0; i < count; i++) {
             s = reader.readLine();
-            if (i % 10000 == 0) System.out.println("Proccess " + i + " wordBase of " + count);
+            if (i % 10000 == 0) System.out.println("Process " + i + " wordBase of " + count);
 
             WordCard card = buildForm(s);
 
@@ -79,9 +75,12 @@ public class DictionaryReader {
         String wordBase = wd[0].toLowerCase();
         if (wordBase.startsWith("-")) return null;
         wordBase = "#".equals(wordBase) ? "" : wordBase;
-        List<FlexiaModel> models = wordsFlexias.get(Integer.valueOf(wd[1]));
+        List<FlexiaModel> models = wordsFlexias.get(Integer.parseInt(wd[1]));
+        if (models.isEmpty()) {
+            return null;
+        }
         FlexiaModel flexiaModel = models.get(0);
-        if (models.size() == 0 || ignoredForm.contains(flexiaModel.getCode())) {
+        if (ignoredForm.contains(flexiaModel.getCode())) {
             return null;
         }
 
@@ -96,7 +95,7 @@ public class DictionaryReader {
 
     private void skipBlock(BufferedReader reader) throws IOException {
         String s = reader.readLine();
-        int count = Integer.valueOf(s);
+        int count = Integer.parseInt(s);
         for (int i = 0; i < count; i++) {
             reader.readLine();
         }
@@ -105,7 +104,7 @@ public class DictionaryReader {
 
     private void readPrefix(BufferedReader reader) throws IOException {
         String s = reader.readLine();
-        int count = Integer.valueOf(s);
+        int count = Integer.parseInt(s);
         for (int i = 0; i < count; i++) {
             reader.readLine();
         }
@@ -113,10 +112,10 @@ public class DictionaryReader {
 
     private void readFlexias(BufferedReader reader) throws IOException {
         String s = reader.readLine();
-        int count = Integer.valueOf(s);
+        int count = Integer.parseInt(s);
         for (int i = 0; i < count; i++) {
             s = reader.readLine();
-            ArrayList<FlexiaModel> flexiaModelArrayList = new ArrayList<FlexiaModel>();
+            ArrayList<FlexiaModel> flexiaModelArrayList = new ArrayList<>();
             wordsFlexias.add(flexiaModelArrayList);
             for (String line : s.split("%")) {
                 addFlexia(flexiaModelArrayList, line);
@@ -126,12 +125,11 @@ public class DictionaryReader {
 
     private void addFlexia(ArrayList<FlexiaModel> flexiaModelArrayList, String line) {
         String[] fl = line.split("\\*");
-        // we inored all forms thats
+        // we ignored all forms that's
         if (fl.length == 3) {
             //System.out.println(line);
             flexiaModelArrayList.add(new FlexiaModel(fl[1], fl[0].toLowerCase(), fl[2].toLowerCase()));
         }
         if (fl.length == 2) flexiaModelArrayList.add(new FlexiaModel(fl[1], fl[0].toLowerCase(), ""));
     }
-
 }

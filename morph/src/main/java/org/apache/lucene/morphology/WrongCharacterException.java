@@ -17,11 +17,11 @@
 package org.apache.lucene.morphology;
 
 
-public class WrongCharaterException extends RuntimeException {
-    public WrongCharaterException() {
+public class WrongCharacterException extends RuntimeException {
+    public WrongCharacterException() {
     }
 
-    public WrongCharaterException(String message) {
+    public WrongCharacterException(String message) {
         super(message);
     }
 }

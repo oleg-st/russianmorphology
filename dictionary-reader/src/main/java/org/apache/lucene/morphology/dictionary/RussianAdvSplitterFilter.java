@@ -20,25 +20,25 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.LinkedList;
 import java.util.List;
-
+import java.util.Objects;
 
 public class RussianAdvSplitterFilter extends WordFilter {
-    private String code;
+    private final String code;
 
     public RussianAdvSplitterFilter(WordProcessor wordProcessor) throws IOException {
         super(wordProcessor);
-        code = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream("/russian-adv-main-code.txt"), "windows-1251")).readLine();
+        code = new BufferedReader(new InputStreamReader(Objects.requireNonNull(this.getClass().getResourceAsStream("/russian-adv-main-code.txt")), "windows-1251")).readLine();
     }
 
     @Override
     public List<WordCard> transform(WordCard wordCard) {
-        LinkedList<WordCard> result = new LinkedList<WordCard>();
+        LinkedList<WordCard> result = new LinkedList<>();
         result.add(wordCard);
 
         String baseWord = "";
         String canonicalForm = "";
         String canonicalSuffix = "";
-        List<FlexiaModel> flexiaModels = new LinkedList<FlexiaModel>();
+        List<FlexiaModel> flexiaModels = new LinkedList<>();
         for (FlexiaModel flexiaModel : wordCard.getWordsForms()) {
             if (flexiaModel.getPrefix().length() > 0) {
                 flexiaModels.add(new FlexiaModel(flexiaModel.getCode(), flexiaModel.getSuffix(), ""));

@@ -21,7 +21,7 @@ import java.util.List;
 
 
 abstract public class WordFilter implements WordProcessor {
-    private WordProcessor wordProcessor;
+    private final WordProcessor wordProcessor;
 
     public WordFilter(WordProcessor wordProcessor) {
         this.wordProcessor = wordProcessor;

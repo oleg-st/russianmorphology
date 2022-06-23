@@ -21,7 +21,7 @@ import org.apache.lucene.morphology.english.EnglishLuceneMorphology;
 import java.util.List;
 
 public class EnglishStemmer {
-    private EnglishLuceneMorphology englishLuceneMorphology;
+    private final EnglishLuceneMorphology englishLuceneMorphology;
 
     public EnglishStemmer(EnglishLuceneMorphology englishLuceneMorphology) {
         this.englishLuceneMorphology = englishLuceneMorphology;

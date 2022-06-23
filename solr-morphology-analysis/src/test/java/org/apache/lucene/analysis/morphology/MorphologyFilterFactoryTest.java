@@ -15,11 +15,11 @@
  */
 package org.apache.lucene.analysis.morphology;
 
-import org.apache.lucene.analysis.util.ClasspathResourceLoader;
-import org.apache.lucene.analysis.util.ResourceLoader;
 import org.apache.lucene.morphology.LuceneMorphology;
 import org.apache.lucene.morphology.english.EnglishLuceneMorphology;
 import org.apache.lucene.morphology.russian.RussianLuceneMorphology;
+import org.apache.lucene.util.ClasspathResourceLoader;
+import org.apache.lucene.util.ResourceLoader;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,7 +30,7 @@ import java.util.Map;
 public class MorphologyFilterFactoryTest {
 
     private static final String LANGUAGE_KEY = "language";
-    private ResourceLoader loader = new ClasspathResourceLoader();
+    private final ResourceLoader loader = new ClasspathResourceLoader(getClass().getClassLoader());
     private Map<String, String> args;
 
     @Before

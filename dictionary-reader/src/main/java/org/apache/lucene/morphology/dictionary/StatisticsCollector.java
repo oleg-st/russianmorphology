@@ -27,11 +27,11 @@ import java.util.*;
 
 //todo made refactoring this class
 public class StatisticsCollector implements WordProcessor {
-    private TreeMap<String, Set<Heuristic>> inverseIndex = new TreeMap<String, Set<Heuristic>>();
-    private Map<Set<Heuristic>, Integer> ruleInverseIndex = new HashMap<Set<Heuristic>, Integer>();
-    private List<Set<Heuristic>> rules = new ArrayList<Set<Heuristic>>();
-    private GrammarReader grammarReader;
-    private LetterDecoderEncoder decoderEncoder;
+    private final TreeMap<String, Set<Heuristic>> inverseIndex = new TreeMap<>();
+    private final Map<Set<Heuristic>, Integer> ruleInverseIndex = new HashMap<>();
+    private final List<Set<Heuristic>> rules = new ArrayList<>();
+    private final GrammarReader grammarReader;
+    private final LetterDecoderEncoder decoderEncoder;
 
 
     public StatisticsCollector(GrammarReader grammarReader, LetterDecoderEncoder decoderEncoder) {
@@ -39,18 +39,14 @@ public class StatisticsCollector implements WordProcessor {
         this.decoderEncoder = decoderEncoder;
     }
 
-    public void process(WordCard wordCard) throws IOException {
+    public void process(WordCard wordCard) {
         cleanWordCard(wordCard);
         String normalStringMorph = wordCard.getWordsForms().get(0).getCode();
 
         for (FlexiaModel fm : wordCard.getWordsForms()) {
-            Heuristic heuristic = createEvristic(wordCard.getBase(), wordCard.getCanonicalSuffix(), fm, normalStringMorph);
+            Heuristic heuristic = createHeuristic(wordCard.getBase(), wordCard.getCanonicalSuffix(), fm, normalStringMorph);
             String form = revertWord(fm.create(wordCard.getBase()));
-            Set<Heuristic> suffixHeuristics = inverseIndex.get(form);
-            if (suffixHeuristics == null) {
-                suffixHeuristics = new HashSet<Heuristic>();
-                inverseIndex.put(form, suffixHeuristics);
-            }
+            Set<Heuristic> suffixHeuristics = inverseIndex.computeIfAbsent(form, k -> new HashSet<>());
             suffixHeuristics.add(heuristic);
         }
     }
@@ -68,8 +64,7 @@ public class StatisticsCollector implements WordProcessor {
 
 
     public void saveHeuristic(String fileName) throws IOException {
-
-        Map<Integer, Integer> dist = new TreeMap<Integer, Integer>();
+        Map<Integer, Integer> dist = new TreeMap<>();
         Set<Heuristic> prevSet = null;
         int count = 0;
         for (String key : inverseIndex.keySet()) {
@@ -85,18 +80,18 @@ public class StatisticsCollector implements WordProcessor {
                 }
             }
         }
-        System.out.println("Word with diffirent rules " + count);
+        System.out.println("Word with different rules " + count);
         System.out.println("All ivers words " + inverseIndex.size());
         System.out.println(dist);
-        System.out.println("diffirent rule count " + ruleInverseIndex.size());
+        System.out.println("different rule count " + ruleInverseIndex.size());
         Heuristic[][] heuristics = new Heuristic[ruleInverseIndex.size()][];
         int index = 0;
         for (Set<Heuristic> hs : rules) {
             heuristics[index] = new Heuristic[hs.size()];
-            int indexj = 0;
+            int indexJ = 0;
             for (Heuristic h : hs) {
-                heuristics[index][indexj] = h;
-                indexj++;
+                heuristics[index][indexJ] = h;
+                indexJ++;
             }
             index++;
         }
@@ -120,27 +115,27 @@ public class StatisticsCollector implements WordProcessor {
     }
 
     private String revertWord(String s) {
-        String result = "";
+        StringBuilder result = new StringBuilder();
         for (int i = 1; i <= s.length(); i++) {
-            result += s.charAt(s.length() - i);
+            result.append(s.charAt(s.length() - i));
         }
-        return result;
+        return result.toString();
     }
 
 
-    private Heuristic createEvristic(String wordBase, String canonicalSuffix, FlexiaModel fm, String normalSuffixForm) {
+    private Heuristic createHeuristic(String wordBase, String canonicalSuffix, FlexiaModel fm, String normalSuffixForm) {
         String form = fm.create(wordBase);
         String normalForm = wordBase + canonicalSuffix;
-        Integer length = getCommonLength(form, normalForm);
-        Integer actualSuffixLengh = form.length() - length;
+        int length = getCommonLength(form, normalForm);
+        int actualSuffixLength = form.length() - length;
         String actualNormalSuffix = normalForm.substring(length);
         Integer integer = grammarReader.getGrammarInverseIndex().get(fm.getCode());
         Integer nf = grammarReader.getGrammarInverseIndex().get(normalSuffixForm);
-        return new Heuristic((byte) actualSuffixLengh.intValue(), actualNormalSuffix, (short) integer.intValue(), (short) nf.intValue());
+        return new Heuristic((byte) actualSuffixLength, actualNormalSuffix, (short) integer.intValue(), (short) nf.intValue());
     }
 
-    public static Integer getCommonLength(String s1, String s2) {
-        Integer length = Math.min(s1.length(), s2.length());
+    public static int getCommonLength(String s1, String s2) {
+        int length = Math.min(s1.length(), s2.length());
         for (int i = 0; i < length; i++) {
             if (s1.charAt(i) != s2.charAt(i)) return i;
         }
@@ -150,5 +145,4 @@ public class StatisticsCollector implements WordProcessor {
     private String cleanString(String s) {
         return decoderEncoder.cleanString(s);
     }
-
 }

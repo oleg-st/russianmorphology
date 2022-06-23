@@ -33,8 +33,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static org.hamcrest.Matchers.hasItem;
-import static org.junit.Assert.assertThat;
-
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class TestAllWords {
 
@@ -51,10 +50,10 @@ public class TestAllWords {
     public void shouldEnglishMorphologyIncludeAllWordsFormsWithMorphInfo() throws IOException {
         final MorphologyImpl morphology = new EnglishMorphology();
         LetterDecoderEncoder decoderEncoder = new EnglishLetterDecoderEncoder();
-        String pathToGramma = prefix + "dictonary/Dicts/Morph/egramtab.tab";
-        String pathToDict = prefix + "dictonary/Dicts/SrcMorph/EngSrc/morphs.mrd";
+        String pathToGrammar = prefix + "dictionary/Dicts/Morph/egramtab.tab";
+        String pathToDict = prefix + "dictionary/Dicts/SrcMorph/EngSrc/morphs.mrd";
 
-        testFullGramma(morphology, decoderEncoder, pathToGramma, pathToDict);
+        testFullGrammar(morphology, decoderEncoder, pathToGrammar, pathToDict);
 
     }
 
@@ -62,32 +61,30 @@ public class TestAllWords {
     public void shouldRussianMorphologyIncludeAllWordsFormsWithMorphInfo() throws IOException {
         final MorphologyImpl morphology = new RussianMorphology();
         LetterDecoderEncoder decoderEncoder = new RussianLetterDecoderEncoder();
-        String pathToGramma = prefix + "dictonary/Dicts/Morph/rgramtab.tab";
-        String pathToDict = prefix + "dictonary/Dicts/SrcMorph/RusSrc/morphs.mrd";
+        String pathToGrammar = prefix + "dictionary/Dicts/Morph/rgramtab.tab";
+        String pathToDict = prefix + "dictionary/Dicts/SrcMorph/RusSrc/morphs.mrd";
 
-        testFullGramma(morphology, decoderEncoder, pathToGramma, pathToDict);
+        testFullGrammar(morphology, decoderEncoder, pathToGrammar, pathToDict);
     }
 
-    private void testFullGramma(final MorphologyImpl morphology, LetterDecoderEncoder decoderEncoder, String pathToGramma, String pathToDict) throws IOException {
-        GrammarReader grammarInfo = new GrammarReader(pathToGramma);
+    private void testFullGrammar(final MorphologyImpl morphology, LetterDecoderEncoder decoderEncoder, String pathToGrammar, String pathToDict) throws IOException {
+        GrammarReader grammarInfo = new GrammarReader(pathToGrammar);
         final List<String> morphInfo = grammarInfo.getGrammarInfo();
-        final Map<String, Integer> inversIndex = grammarInfo.getGrammarInverseIndex();
+        final Map<String, Integer> inverseIndex = grammarInfo.getGrammarInverseIndex();
 
-        DictionaryReader dictionaryReader = new DictionaryReader(pathToDict, new HashSet<String>());
+        DictionaryReader dictionaryReader = new DictionaryReader(pathToDict, new HashSet<>());
 
         final AtomicLong wordCount = new AtomicLong(0);
-        Long startTime = System.currentTimeMillis();
+        long startTime = System.currentTimeMillis();
 
-        WordProcessor wordProcessor = new WordProcessor() {
-            public void process(WordCard wordCard) throws IOException {
-                String word = wordCard.getBase() + wordCard.getCanonicalSuffix();
-                for (FlexiaModel fm : wordCard.getWordsForms()) {
-                    String wordForm = wordCard.getBase() + fm.getSuffix();
-                    String morph = morphInfo.get(inversIndex.get(fm.getCode()));
-                    assertThat(morphology.getMorphInfo(wordForm), hasItem(word + "|" + morph));
-                    assertThat(morphology.getNormalForms(wordForm), hasItem(word));
-                    wordCount.set(2L + wordCount.get());
-                }
+        WordProcessor wordProcessor = wordCard -> {
+            String word = wordCard.getBase() + wordCard.getCanonicalSuffix();
+            for (FlexiaModel fm : wordCard.getWordsForms()) {
+                String wordForm = wordCard.getBase() + fm.getSuffix();
+                String morph = morphInfo.get(inverseIndex.get(fm.getCode()));
+                assertThat(morphology.getMorphInfo(wordForm), hasItem(word + "|" + morph));
+                assertThat(morphology.getNormalForms(wordForm), hasItem(word));
+                wordCount.set(2L + wordCount.get());
             }
         };
 
@@ -104,18 +101,18 @@ public class TestAllWords {
         final LuceneMorphology morphology = new EnglishLuceneMorphology();
 
         LetterDecoderEncoder decoderEncoder = new EnglishLetterDecoderEncoder();
-        String pathToDic = prefix + "dictonary/Dicts/SrcMorph/EngSrc/morphs.mrd";
+        String pathToDic = prefix + "dictionary/Dicts/SrcMorph/EngSrc/morphs.mrd";
 
         testAllWordForLucene(morphology, decoderEncoder, pathToDic);
     }
 
     @Test
-    public void shouldIncludeAllWordsRussianInLuceneMorophology() throws IOException {
+    public void shouldIncludeAllWordsRussianInLuceneMorphology() throws IOException {
         final LuceneMorphology morphology = new RussianLuceneMorphology();
 
         LetterDecoderEncoder decoderEncoder = new RussianLetterDecoderEncoder();
 
-        String pathToDic = prefix + "dictonary/Dicts/SrcMorph/RusSrc/morphs.mrd";
+        String pathToDic = prefix + "dictionary/Dicts/SrcMorph/RusSrc/morphs.mrd";
 
         testAllWordForLucene(morphology, decoderEncoder, pathToDic);
 
@@ -123,17 +120,15 @@ public class TestAllWords {
 
     private void testAllWordForLucene(final LuceneMorphology morphology, LetterDecoderEncoder decoderEncoder, String pathToDic) throws IOException {
         final AtomicLong wordCount = new AtomicLong(0);
-        Long startTime = System.currentTimeMillis();
+        long startTime = System.currentTimeMillis();
 
-        DictionaryReader dictionaryReader = new DictionaryReader(pathToDic, new HashSet<String>());
-        WordProcessor wordProcessor = new WordProcessor() {
-            public void process(WordCard wordCard) throws IOException {
-                String word = wordCard.getBase() + wordCard.getCanonicalSuffix();
-                for (FlexiaModel fm : wordCard.getWordsForms()) {
-                    String wordForm = wordCard.getBase() + fm.getSuffix();
-                    assertThat(morphology.getNormalForms(wordForm), hasItem(word));
-                    wordCount.set(1L + wordCount.get());
-                }
+        DictionaryReader dictionaryReader = new DictionaryReader(pathToDic, new HashSet<>());
+        WordProcessor wordProcessor = wordCard -> {
+            String word = wordCard.getBase() + wordCard.getCanonicalSuffix();
+            for (FlexiaModel fm : wordCard.getWordsForms()) {
+                String wordForm = wordCard.getBase() + fm.getSuffix();
+                assertThat(morphology.getNormalForms(wordForm), hasItem(word));
+                wordCount.set(1L + wordCount.get());
             }
         };
 

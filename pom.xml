@@ -4,29 +4,15 @@
     <groupId>org.apache.lucene.morphology</groupId>
     <artifactId>morphology</artifactId>
     <packaging>pom</packaging>
-    <version>1.5</version>
+    <version>1.6</version>
     <name>morphology</name>
-    <url>http://maven.apache.org</url>
-
-    <scm>
-        <connection>scm:git:https://github.com/AKuznetsov/russianmorphology.git</connection>
-        <developerConnection>scm:git:git@github.com:AKuznetsov/russianmorphology.git</developerConnection>
-        <url>https://github.com/AKuznetsov/russianmorphology</url>
-        <tag>HEAD</tag>
-    </scm>
+    <url>https://maven.apache.org</url>
 
     <properties>
-        <lucene.version>8.0.0</lucene.version>
-        <morphology.version>1.5</morphology.version>
-        <junit.version>4.12</junit.version>
+        <lucene.version>9.0.0</lucene.version>
+        <morphology.version>1.6</morphology.version>
+        <junit.version>4.13.2</junit.version>
     </properties>
-
-    <distributionManagement>
-        <repository>
-            <id>bintray</id>
-            <url>https://api.bintray.com/maven/akuznetsov/russianmorphology/morphology</url>
-        </repository>
-    </distributionManagement>
 
     <licenses>
         <license>
@@ -56,7 +42,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-analyzers-common</artifactId>
+            <artifactId>lucene-analysis-common</artifactId>
             <version>${lucene.version}</version>
         </dependency>
     </dependencies>
@@ -140,39 +126,6 @@
             </plugin>
         </plugins>
     </build>
-    <profiles>
-        <profile>
-            <id>release</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-source-plugin</artifactId>
-                        <version>3.0.1</version>
-                        <executions>
-                            <execution>
-                                <id>attach-sources</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>2.10.4</version>
-                        <executions>
-                            <execution>
-                                <id>attach-javadocs</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
     <modules>
         <module>morph</module>
         <module>dictionary-reader</module>
