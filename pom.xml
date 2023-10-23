@@ -4,13 +4,13 @@
     <groupId>org.apache.lucene.morphology</groupId>
     <artifactId>morphology</artifactId>
     <packaging>pom</packaging>
-    <version>1.6</version>
+    <version>1.7</version>
     <name>morphology</name>
     <url>https://maven.apache.org</url>
 
     <properties>
-        <lucene.version>9.0.0</lucene.version>
-        <morphology.version>1.6</morphology.version>
+        <lucene.version>9.5.0</lucene.version>
+        <morphology.version>1.7</morphology.version>
         <junit.version>4.13.2</junit.version>
     </properties>
 
