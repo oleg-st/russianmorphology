@@ -26,6 +26,7 @@ import org.apache.lucene.morphology.english.EnglishAnalyzer;
 import org.apache.lucene.morphology.english.EnglishLuceneMorphology;
 import org.apache.lucene.morphology.russian.RussianAnalyzer;
 import org.apache.lucene.morphology.russian.RussianLuceneMorphology;
+import org.apache.lucene.tests.analysis.BaseTokenStreamTestCase;
 import org.junit.Test;
 
 import java.io.*;
